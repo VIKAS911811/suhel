@@ -215,7 +215,7 @@ export const Header: React.FC<HeaderProps> = ({
               handleLinkClick('/');
             }}
             className="flex items-center gap-2.5 sm:gap-3 group text-left focus:outline-none hover:opacity-95 transition-opacity shrink-0 flex-shrink-0 select-none py-1"
-            title="SR GROUP - Engineering & Infrastructure"
+            title="SR GROUP OF COMPANIES"
           >
             <SRGroupLogo size="md" showText={true} />
           </button>

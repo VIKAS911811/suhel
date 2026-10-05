@@ -46,13 +46,13 @@ const RenderCustomLogoImage: React.FC<RenderCustomLogoProps> = ({
   subtextColor,
 }) => {
   const sizeMap = {
-    sm: 'h-9 w-auto',
-    md: 'h-12 sm:h-14 w-auto',
-    lg: 'h-16 sm:h-20 w-auto',
-    xl: 'h-24 sm:h-28 w-auto',
+    sm: 'h-10 w-10',
+    md: 'h-13 sm:h-14 w-13 sm:w-14',
+    lg: 'h-18 sm:h-20 w-18 sm:w-20',
+    xl: 'h-26 sm:h-28 w-26 sm:w-28',
   };
 
-  const isWhiteBg = customLogo.bgStyle === 'white';
+  const isWhiteBg = customLogo.bgStyle === 'white' || !customLogo.bgStyle || customLogo.bgStyle === 'auto';
   const isDarkBg = customLogo.bgStyle === 'dark';
 
   return (
@@ -63,16 +63,21 @@ const RenderCustomLogoImage: React.FC<RenderCustomLogoProps> = ({
             ? 'bg-white p-1 rounded-xl border border-slate-200 shadow-sm'
             : isDarkBg
             ? 'bg-slate-950 p-1 rounded-xl border border-slate-800'
-            : ''
+            : 'bg-white p-1 rounded-xl border border-slate-200/50 shadow-sm'
         }`}
       >
         <img
           src={customLogo.dataUrl}
           alt={`${companyName} Logo`}
-          className="h-full w-auto max-h-full object-contain"
+          className="h-full w-full object-contain"
+          onError={(e) => {
+            if (companyName.includes('SR GROUP')) {
+              e.currentTarget.src = SR_GROUP_LOGO_DATA_URL;
+            }
+          }}
           style={{
             maxHeight: '100%',
-            width: 'auto',
+            maxWidth: '100%',
             objectFit: 'contain',
             objectPosition: 'center',
           }}
@@ -112,7 +117,7 @@ export const SRGroupLogo: React.FC<LogoProps> = ({
       <RenderCustomLogoImage
         customLogo={customLogo}
         companyName="SR GROUP"
-        tagline="ENGINEERING & INFRASTRUCTURE"
+        tagline="GROUP OF COMPANIES"
         size={size}
         showText={showText}
         lightMode={lightMode}
@@ -125,13 +130,13 @@ export const SRGroupLogo: React.FC<LogoProps> = ({
 
   // Sized to match the natural 1:1 square aspect ratio of the official emblem & typography
   const badgeSizeMap = {
-    sm: 'h-9 w-9 sm:w-10 p-0.5 rounded-lg',
-    md: 'h-12 sm:h-14 w-12 sm:w-14 p-1 rounded-xl',
-    lg: 'h-16 sm:h-20 w-16 sm:w-20 p-1.5 rounded-2xl',
-    xl: 'h-24 sm:h-28 w-24 sm:w-28 p-2 rounded-2xl',
+    sm: 'h-10 w-10 p-0.5 rounded-lg',
+    md: 'h-13 sm:h-14 w-13 sm:w-14 p-1 rounded-xl',
+    lg: 'h-18 sm:h-20 w-18 sm:w-20 p-1.5 rounded-2xl',
+    xl: 'h-26 sm:h-28 w-26 sm:w-28 p-2 rounded-2xl',
   };
 
-  const logoSrc = SR_GROUP_LOGO_DATA_URL || '/sr_group_logo.jpg?v=4';
+  const logoSrc = SR_GROUP_LOGO_DATA_URL || '/sr_group_logo.jpg?v=5';
 
   return (
     <div className={`inline-flex items-center gap-2.5 sm:gap-3.5 shrink-0 flex-shrink-0 select-none ${className}`}>
@@ -139,7 +144,7 @@ export const SRGroupLogo: React.FC<LogoProps> = ({
       <div className={`bg-white border border-slate-200/50 shadow-md flex items-center justify-center shrink-0 flex-shrink-0 transition-transform overflow-hidden ${badgeSizeMap[size]}`}>
         <img
           src={logoSrc}
-          alt="SR GROUP Logo"
+          alt="SR GROUP OF COMPANIES Logo"
           className="w-full h-full object-contain"
           onError={(e) => {
             e.currentTarget.src = SR_GROUP_LOGO_DATA_URL;
@@ -153,7 +158,7 @@ export const SRGroupLogo: React.FC<LogoProps> = ({
             SR GROUP
           </span>
           <span className={`text-[9px] sm:text-xs font-black uppercase tracking-widest whitespace-nowrap ${subtextColor} mt-1`}>
-            ENGINEERING & INFRASTRUCTURE
+            GROUP OF COMPANIES
           </span>
         </div>
       )}
