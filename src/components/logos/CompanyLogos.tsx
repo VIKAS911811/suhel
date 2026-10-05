@@ -131,7 +131,7 @@ export const SRGroupLogo: React.FC<LogoProps> = ({
     xl: 'h-24 sm:h-28 w-24 sm:w-28 p-2 rounded-2xl',
   };
 
-  const logoSrc = SR_GROUP_LOGO_DATA_URL || '/sr_group_logo.jpg';
+  const logoSrc = SR_GROUP_LOGO_DATA_URL || '/sr_group_logo.jpg?v=4';
 
   return (
     <div className={`inline-flex items-center gap-2.5 sm:gap-3.5 shrink-0 flex-shrink-0 select-none ${className}`}>

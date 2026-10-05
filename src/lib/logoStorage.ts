@@ -93,21 +93,60 @@ export async function saveCustomLogo(logoData: CustomLogoData): Promise<void> {
   }
 }
 
+const LOGO_CACHE_VERSION = 'sr_logo_v4_20261005';
+
 /**
  * Fetch all custom logos from Server API, IndexedDB, or localStorage
+ * Features automatic cache busting and auto-purging of obsolete browser caches.
  */
 export async function getAllCustomLogos(): Promise<Record<string, CustomLogoData>> {
   const result: Record<string, CustomLogoData> = {};
 
-  // 1. Try fetching from Server API first (global persistent logos)
+  // Auto-purge stale local cache if version mismatch detected
   try {
-    const res = await fetch('/api/logos');
+    const currentStoredVersion = localStorage.getItem('sr_logo_cache_version');
+    if (currentStoredVersion !== LOGO_CACHE_VERSION) {
+      const keysToClear = ['sr-group', 'suhel-engineering', 'sr-infra', 'sr-power-solution'];
+      keysToClear.forEach((key) => {
+        try {
+          localStorage.removeItem(`sr_custom_logo_${key}`);
+        } catch (e) {}
+      });
+
+      try {
+        const db = await openDB();
+        const transaction = db.transaction(STORE_NAME, 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        store.clear();
+      } catch (dbErr) {
+        // ignore DB clear failure
+      }
+
+      localStorage.setItem('sr_logo_cache_version', LOGO_CACHE_VERSION);
+    }
+  } catch (verErr) {
+    // ignore
+  }
+
+  // 1. Try fetching from Server API first with cache-busting timestamp
+  try {
+    const res = await fetch(`/api/logos?t=${Date.now()}`, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+      },
+    });
     if (res.ok) {
       const serverLogos = await res.json();
       if (serverLogos && typeof serverLogos === 'object') {
         Object.keys(serverLogos).forEach((key) => {
           if (serverLogos[key]) {
             result[key] = serverLogos[key];
+            // Cache locally so it is available immediately on reload
+            try {
+              localStorage.setItem(`sr_custom_logo_${key}`, JSON.stringify(serverLogos[key]));
+            } catch (e) {}
           }
         });
       }
@@ -116,7 +155,7 @@ export async function getAllCustomLogos(): Promise<Record<string, CustomLogoData
     console.warn('Server logos fetch failed, trying local DB:', apiErr);
   }
 
-  // 2. Check IndexedDB
+  // 2. Check IndexedDB if server did not provide
   try {
     const db = await openDB();
     const items = await new Promise<CustomLogoData[]>((resolve, reject) => {
@@ -137,7 +176,7 @@ export async function getAllCustomLogos(): Promise<Record<string, CustomLogoData
     console.warn('IndexedDB read failed, checking localStorage fallback:', err);
   }
 
-  // 3. Check localStorage
+  // 3. Check localStorage fallback
   const keys = ['sr-group', 'suhel-engineering', 'sr-infra', 'sr-power-solution'];
   keys.forEach((key) => {
     try {

@@ -1170,9 +1170,13 @@ async function startServer() {
   // -------------------------------------------------------------
   const ALLOWED_COMPANIES = ["sr-group", "sr-infra", "suhel-engineering", "sr-power-solution"];
 
-  // Public GET (Read-only)
+  // Public GET (Read-only) with aggressive no-cache headers so live deployments always reflect new logos instantly
   app.get("/api/logos", (_req: Request, res: Response) => {
     try {
+      res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0");
+      res.setHeader("Pragma", "no-cache");
+      res.setHeader("Expires", "0");
+      res.setHeader("Surrogate-Control", "no-store");
       if (fs.existsSync(LOGOS_FILE)) {
         const raw = fs.readFileSync(LOGOS_FILE, "utf-8");
         res.json(JSON.parse(raw));
@@ -1684,12 +1688,25 @@ async function startServer() {
     }
   } else {
     const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath) as RequestHandler);
+    app.use(express.static(distPath, {
+      setHeaders: (res: Response, filePath: string) => {
+        if (filePath.endsWith("index.html")) {
+          res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0");
+          res.setHeader("Pragma", "no-cache");
+          res.setHeader("Expires", "0");
+        } else if (filePath.endsWith(".jpg") || filePath.endsWith(".png") || filePath.endsWith(".webp") || filePath.endsWith(".svg")) {
+          res.setHeader("Cache-Control", "public, max-age=60, must-revalidate");
+        }
+      }
+    }) as RequestHandler);
     app.use((req: Request, res: Response, next: NextFunction) => {
       if (req.originalUrl.startsWith("/api")) {
         next();
         return;
       }
+      res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0");
+      res.setHeader("Pragma", "no-cache");
+      res.setHeader("Expires", "0");
       res.sendFile(path.join(distPath, "index.html"));
     });
 
