@@ -123,12 +123,12 @@ export const SRGroupLogo: React.FC<LogoProps> = ({
     );
   }
 
-  // Sized to match the natural 1.55:1 aspect ratio of the official emblem & typography
+  // Sized to match the natural 1:1 square aspect ratio of the official emblem & typography
   const badgeSizeMap = {
-    sm: 'h-9 w-14 p-1 rounded-lg',
-    md: 'h-12 sm:h-14 w-18 sm:w-22 p-1 rounded-xl',
-    lg: 'h-16 sm:h-20 w-24 sm:w-32 p-1.5 rounded-2xl',
-    xl: 'h-24 sm:h-28 w-36 sm:w-44 p-2 rounded-2xl',
+    sm: 'h-9 w-9 sm:w-10 p-0.5 rounded-lg',
+    md: 'h-12 sm:h-14 w-12 sm:w-14 p-1 rounded-xl',
+    lg: 'h-16 sm:h-20 w-16 sm:w-20 p-1.5 rounded-2xl',
+    xl: 'h-24 sm:h-28 w-24 sm:w-28 p-2 rounded-2xl',
   };
 
   const logoSrc = SR_GROUP_LOGO_DATA_URL || '/sr_group_logo.jpg';
